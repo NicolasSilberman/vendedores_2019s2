@@ -10,20 +10,23 @@ class Vendedor {
 	method esInfluyente()
 	method esVersatil() {
 		return certificaciones.size() >= 3 and
-		certificaciones.any({c=>c.esPorObjeto()}) and
-		certificaciones.any({c=> not c.esPorObjeto()})
+		certificaciones.any({c=>c.esPorProducto()}) and
+		certificaciones.any({c=> not c.esPorProducto()})
 	}
-	method esFirme() {return self.puntajeTotal() > 30}
+	method esFirme() {return self.puntajeTotal() >= 30}
 	
 	method puntajeTotal() { return certificaciones.sum({c=>c.puntos()}) }
 	
-	method esGenerico() {return certificaciones.any({c=> not c.esPorObjeto()})}
+	method esGenerico() {return certificaciones.any({c=> not c.esPorProducto()})}
 	
 	method tieneAfinidad(unCentro) {return self.puedeTrabajarEn(unCentro.ciudad())}
 	
 	method esVendedorCandidato(unCentro) {return self.esVersatil() and self.tieneAfinidad(unCentro)}
 	
+	method certificadosPorProductos() {return certificaciones.count({c=>c.esPorProducto()})}
 	
+	method esPersonaFisica()
+		
 }
 
 class VendedorFijo inherits Vendedor{
@@ -34,12 +37,14 @@ class VendedorFijo inherits Vendedor{
 	}
 	
 	override method esInfluyente() {return false}
+	
+	override method esPersonaFisica() {return true}
 }
 
 class Viajante inherits Vendedor {
 	var provinciasHabilitadas = []
 	
-	method agregarProvincia(unaCiudad) {provinciasHabilitadas.addAll(unaCiudad)}
+	method agregarProvincia(provincia) {provinciasHabilitadas.addAll(provincia)}
 	method provinciasHabilitadas() {return provinciasHabilitadas}
 	
 	override method puedeTrabajarEn(unaCiudad) {
@@ -49,6 +54,8 @@ class Viajante inherits Vendedor {
 	override method esInfluyente() {
 		return provinciasHabilitadas.sum({p=>p.poblacion()}) >=  10000000
 	}
+	
+	override method esPersonaFisica() {return true}
 }
 
 class ComercioCorresponsal inherits Vendedor{
@@ -62,15 +69,18 @@ class ComercioCorresponsal inherits Vendedor{
 	}
 	
 	override method esInfluyente() {
-		return sucursales.size() >= 5 //repasar
+		return sucursales.size() >= 5 or sucursales.map({c=>c.provincia()}).asSet().size() >= 3
 	}
-	
+	method aux() {return sucursales.map({c=>c.provincia()}).asSet().size()}
+
 	override method tieneAfinidad(unCentro) {
 		return super(unCentro) and sucursales.any({s=> not unCentro.puedeCubrir(s)})
 	}
+	
+	override method esPersonaFisica() {return false}
 }
 
 class Certificaciones{
 	var property puntos
-	var property esPorObjeto = true	
+	var property esPorProducto = true	
 }

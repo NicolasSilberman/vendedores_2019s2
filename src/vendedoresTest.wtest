@@ -1,0 +1,118 @@
+import geografia.*
+import vendedores.*
+import centros.*
+
+describe "Test vendedores"{
+	//PROVINCIAS
+	const santaFe = new Provincia(nombre = "Santa Fe",poblacion = 3397532)
+	const buenosAires = new Provincia(nombre = "Buenos Aires",poblacion = 15355000)
+	const entreRios = new Provincia(nombre = "Entre Rios",poblacion = 1235994)
+	const cordoba = new Provincia(nombre = "Cordoba",poblacion = 3567654)
+	//CIUDADES
+	const rosario = new Ciudad(nombre = "Rosario",provincia = santaFe)
+	const rafaela = new Ciudad(nombre = "Rafaela",provincia = santaFe)
+	const amstrong = new Ciudad(nombre = "Amstrong",provincia = santaFe)
+	const chivilcoy = new Ciudad(nombre = "Chivilcoy",provincia = buenosAires)
+	const bragado = new Ciudad(nombre = "Bragado",provincia = buenosAires)
+	const lobos = new Ciudad(nombre = "Lobos",provincia = buenosAires)
+	const pergamino = new Ciudad(nombre = "Pergamino",provincia = buenosAires)
+	const zarate = new Ciudad(nombre = "Zarate",provincia = buenosAires)
+	const diamante = new Ciudad(nombre = "Diamante",provincia = entreRios)
+	const sanFrancisco = new Ciudad(nombre = "San Francisco",provincia = cordoba)
+	//VENDEDORES
+	const vendedorFijo = new VendedorFijo()
+	const vendedorViajante = new Viajante()
+	const comercioCorresponsal = new ComercioCorresponsal()
+	const vendedorEspecial = new Viajante()
+	//CENTROS
+	const centro1 = new CentroDistribucion(ciudad=rafaela)
+	const centro2 = new CentroDistribucion(ciudad=rosario)
+	const centro3 = new CentroDistribucion(ciudad=diamante)
+	const centro4 = new CentroDistribucion(ciudad=chivilcoy)
+	
+	fixture{
+		vendedorFijo.dondeVive(rosario)
+		vendedorFijo.agregarCertificacion(new Certificaciones(puntos=10,esPorProducto=true))
+		vendedorFijo.agregarCertificacion(new Certificaciones(puntos=10,esPorProducto=false))
+		vendedorFijo.agregarCertificacion(new Certificaciones(puntos=10,esPorProducto=true))
+		vendedorViajante.agregarProvincia([cordoba,entreRios])
+		comercioCorresponsal.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=true))
+		comercioCorresponsal.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=true))
+		comercioCorresponsal.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=true))
+		vendedorEspecial.agregarProvincia([cordoba,entreRios,santaFe,buenosAires])
+	}
+	test "vendedor fijo"{
+		assert.that(vendedorFijo.puedeTrabajarEn(rosario))
+		assert.notThat(vendedorFijo.puedeTrabajarEn(rafaela))
+		assert.notThat(vendedorFijo.esInfluyente())
+		assert.that(vendedorFijo.esVersatil())
+		assert.that(vendedorFijo.esFirme())
+		assert.equals(30,vendedorFijo.puntajeTotal())
+		assert.that(vendedorFijo.esGenerico())
+		assert.notThat(vendedorFijo.tieneAfinidad(centro1))
+		assert.that(vendedorFijo.tieneAfinidad(centro2))
+		assert.that(vendedorFijo.esVendedorCandidato(centro2))
+		assert.notThat(vendedorFijo.esVendedorCandidato(centro1))	
+	}
+	
+	test "vendedor viajante"{
+		assert.that(vendedorViajante.puedeTrabajarEn(sanFrancisco))
+		assert.notThat(vendedorViajante.puedeTrabajarEn(chivilcoy))
+		assert.notThat(vendedorViajante.esInfluyente())
+		assert.notThat(vendedorViajante.esVersatil())
+		assert.notThat(vendedorViajante.esFirme())
+		assert.equals(0,vendedorViajante.puntajeTotal())
+		assert.notThat(vendedorViajante.esGenerico())
+		assert.notThat(vendedorViajante.tieneAfinidad(centro1))
+		assert.that(vendedorViajante.tieneAfinidad(centro3))
+		assert.notThat(vendedorViajante.esVendedorCandidato(centro3))
+	}
+	
+	test "comercio corresponsal 1"{
+		comercioCorresponsal.agregarSucursal([chivilcoy,bragado,lobos,pergamino,zarate])
+		assert.that(comercioCorresponsal.puedeTrabajarEn(chivilcoy))
+		assert.notThat(comercioCorresponsal.puedeTrabajarEn(rosario))
+		assert.that(comercioCorresponsal.esInfluyente())
+		assert.notThat(comercioCorresponsal.esVersatil())
+		assert.that(comercioCorresponsal.esFirme())
+		assert.equals(60,comercioCorresponsal.puntajeTotal())
+		assert.notThat(comercioCorresponsal.esGenerico())
+		assert.notThat(comercioCorresponsal.tieneAfinidad(centro1))
+		assert.notThat(comercioCorresponsal.tieneAfinidad(centro2))
+		assert.notThat(comercioCorresponsal.tieneAfinidad(centro3))
+		assert.that(comercioCorresponsal.tieneAfinidad(centro4))
+		assert.notThat(comercioCorresponsal.esVendedorCandidato(centro4))
+			
+	}
+	
+	test "comercio corresponsal 2"{
+		comercioCorresponsal.agregarSucursal([rosario,rafaela,sanFrancisco,diamante])
+		comercioCorresponsal.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=false))
+		assert.that(comercioCorresponsal.esInfluyente())
+		assert.that(comercioCorresponsal.esVersatil())
+		assert.that(comercioCorresponsal.tieneAfinidad(centro1))
+		assert.that(comercioCorresponsal.tieneAfinidad(centro2))
+		assert.that(comercioCorresponsal.tieneAfinidad(centro3))
+		assert.notThat(comercioCorresponsal.tieneAfinidad(centro4))
+		assert.that(comercioCorresponsal.esVendedorCandidato(centro2))
+		assert.notThat(comercioCorresponsal.esVendedorCandidato(centro4))
+	}
+	
+	test "comercio corresponsal 3"{
+		comercioCorresponsal.agregarSucursal([rosario,rafaela,amstrong,diamante])
+		assert.notThat(comercioCorresponsal.esInfluyente())
+		
+		centro2.agregarVendedor(vendedorEspecial)
+		assert.that(centro2.puedeCubrir(rosario))
+		assert.that(centro2.puedeCubrir(rafaela))
+		assert.that(centro2.puedeCubrir(amstrong))
+		assert.that(centro2.puedeCubrir(diamante))
+		
+		comercioCorresponsal.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=false))
+		assert.that(comercioCorresponsal.esVersatil())
+		assert.notThat(comercioCorresponsal.tieneAfinidad(centro2))
+		assert.notThat(comercioCorresponsal.esVendedorCandidato(centro2))
+		
+		}
+
+}

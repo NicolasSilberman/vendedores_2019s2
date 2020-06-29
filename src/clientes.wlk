@@ -10,7 +10,7 @@ class ClienteInseguro inherits Cliente{
 }
 
 class ClienteDetallista inherits Cliente{
-	override method puedeSerAtendido(unVendedor) {return unVendedor.certificaciones().size() > 3}
+	override method puedeSerAtendido(unVendedor) {return unVendedor.certificadosPorProductos() >= 3}
 }
 
 class ClienteHumanista inherits Cliente{

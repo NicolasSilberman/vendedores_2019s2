@@ -1,0 +1,72 @@
+import geografia.*
+import vendedores.*
+import clientes.*
+
+describe "clientes"{
+	//PROVINCIAS
+	const santaFe = new Provincia(nombre = "Santa Fe",poblacion = 3397532)
+	const buenosAires = new Provincia(nombre = "Buenos Aires",poblacion = 15355000)
+	const entreRios = new Provincia(nombre = "Entre Rios",poblacion = 1235994)
+	const cordoba = new Provincia(nombre = "Cordoba",poblacion = 3567654)
+	//CIUDADES
+	const rosario = new Ciudad(nombre = "Rosario",provincia = santaFe)
+	const chivilcoy = new Ciudad(nombre = "Chivilcoy",provincia = buenosAires)
+	const bragado = new Ciudad(nombre = "Bragado",provincia = buenosAires)
+	const lobos = new Ciudad(nombre = "Lobos",provincia = buenosAires)
+	const pergamino = new Ciudad(nombre = "Pergamino",provincia = buenosAires)
+	const zarate = new Ciudad(nombre = "Zarate",provincia = buenosAires)
+	const diamante = new Ciudad(nombre = "Diamante",provincia = entreRios)
+	const sanFrancisco = new Ciudad(nombre = "San Francisco",provincia = cordoba)
+	//VENDEDORES
+	const vendedorFijo = new VendedorFijo()
+	const vendedorViajante = new Viajante()
+	const comercioCorresponsal = new ComercioCorresponsal()
+	const vendedorEspecial = new Viajante()
+	//CLIENTES
+	const clienteInseguro = new ClienteInseguro()
+	const clienteDetallista = new ClienteDetallista()
+	const clienteHumanista = new ClienteHumanista()
+	
+	
+	fixture{
+		vendedorFijo.dondeVive(rosario)
+		vendedorFijo.agregarCertificacion(new Certificaciones(puntos=10,esPorProducto=true))
+		vendedorFijo.agregarCertificacion(new Certificaciones(puntos=10,esPorProducto=false))
+		vendedorFijo.agregarCertificacion(new Certificaciones(puntos=10,esPorProducto=true))
+		vendedorViajante.agregarProvincia([cordoba,entreRios])
+		comercioCorresponsal.agregarSucursal([chivilcoy,bragado,lobos,pergamino,zarate])
+		comercioCorresponsal.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=true))
+		comercioCorresponsal.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=true))
+		comercioCorresponsal.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=true))
+		vendedorEspecial.agregarProvincia([cordoba,entreRios,santaFe,buenosAires])
+		vendedorEspecial.agregarCertificacion(new Certificaciones(puntos=15,esPorProducto=false))
+		vendedorEspecial.agregarCertificacion(new Certificaciones(puntos=15,esPorProducto=true))
+		vendedorEspecial.agregarCertificacion(new Certificaciones(puntos=15,esPorProducto=false))
+		}
+		
+	test "cliente inseguro"{
+		assert.that(clienteInseguro.puedeSerAtendido(vendedorFijo))
+		assert.notThat(clienteInseguro.puedeSerAtendido(vendedorViajante))
+		assert.notThat(clienteInseguro.puedeSerAtendido(comercioCorresponsal))
+		assert.that(clienteInseguro.puedeSerAtendido(vendedorEspecial))	
+	}
+	
+	test "cliente detallista"{
+		assert.notThat(clienteDetallista.puedeSerAtendido(vendedorFijo))
+		assert.notThat(clienteDetallista.puedeSerAtendido(vendedorViajante))
+		assert.that(clienteDetallista.puedeSerAtendido(comercioCorresponsal))
+		assert.notThat(clienteDetallista.puedeSerAtendido(vendedorEspecial))
+		}	
+	
+	
+	test "cliente humanista"{
+		assert.that(clienteHumanista.puedeSerAtendido(vendedorFijo))
+		assert.that(clienteHumanista.puedeSerAtendido(vendedorViajante))
+		assert.notThat(clienteHumanista.puedeSerAtendido(comercioCorresponsal))
+		assert.that(clienteHumanista.puedeSerAtendido(vendedorEspecial))	
+		}
+	
+	
+	
+}
+

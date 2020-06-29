@@ -1,0 +1,55 @@
+import geografia.*
+import vendedores.*
+import centros.*
+
+describe "test centros"{
+	//PROVINCIAS
+	const buenosAires = new Provincia(nombre = "Buenos Aires",poblacion = 15355000)
+	//CIUDADES
+	const chivilcoy = new Ciudad(nombre = "Chivilcoy",provincia = buenosAires)
+	const bragado = new Ciudad(nombre = "Bragado",provincia = buenosAires)
+	const lobos = new Ciudad(nombre = "Lobos",provincia = buenosAires)
+	//VENDEDORES
+	const vendedor1 = new VendedorFijo()
+	const vendedor2 = new VendedorFijo()
+	const vendedor3 = new VendedorFijo()
+	const vendedor4 = new VendedorFijo()
+	//CENTROS
+	const centro1 = new CentroDistribucion(ciudad=chivilcoy)
+	//CERTIFICADO
+	const certificadoCentro = new Certificaciones(puntos=50,esPorProducto=true)
+	
+	fixture{
+		vendedor1.dondeVive(chivilcoy)
+		vendedor2.dondeVive(bragado)
+		vendedor3.dondeVive(bragado)
+		vendedor4.dondeVive(chivilcoy)
+		vendedor1.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=true))
+		vendedor1.agregarCertificacion(new Certificaciones(puntos=30,esPorProducto=true))
+		vendedor1.agregarCertificacion(new Certificaciones(puntos=40,esPorProducto=true))
+		vendedor2.agregarCertificacion(new Certificaciones(puntos=15,esPorProducto=false))
+		vendedor2.agregarCertificacion(new Certificaciones(puntos=15,esPorProducto=false))
+		vendedor2.agregarCertificacion(new Certificaciones(puntos=15,esPorProducto=false))
+		vendedor3.agregarCertificacion(new Certificaciones(puntos=10,esPorProducto=false))
+		vendedor4.agregarCertificacion(new Certificaciones(puntos=20,esPorProducto=true))
+		
+		centro1.agregarVendedor(vendedor1)
+		centro1.agregarVendedor(vendedor2)
+		centro1.agregarVendedor(vendedor3)
+		centro1.agregarVendedor(vendedor4)
+	}
+	
+	test "centro 1"{
+		assert.equals(vendedor1,centro1.vendedorEstrella())
+		assert.that(centro1.puedeCubrir(chivilcoy))
+		assert.that(centro1.puedeCubrir(bragado))
+		assert.notThat(centro1.puedeCubrir(lobos))
+		assert.equals([vendedor2,vendedor3],centro1.vendedoresGenericos())
+		assert.notThat(centro1.esRobusto())
+		centro1.repartirCertificacion(certificadoCentro)
+		assert.that(centro1.esRobusto())
+		
+		
+		
+	}
+}
